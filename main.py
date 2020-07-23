@@ -324,7 +324,7 @@ buildings = {'0': {'name': 'iron ore mining industry', 'level': 10,  'production
              }
 
 
-#for i in range(0,len(resources)):
+
 while True:
     day += 1
     if date[0] == calender[date[1] - 1]:
