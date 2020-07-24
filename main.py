@@ -22,6 +22,10 @@ class pup:
         self.migration_amount = round(self.population / 100)
         self.migration = 0.3
         self.thousend = round(self.population / 1000)
+        self.happines = 0.5
+        self.unrest = 0.05
+        self.min_unrest = 0.05
+        self.unrest_multiplier = 1
 
     def fmigration(self):
         a = random.randint(0,100)
@@ -37,11 +41,20 @@ class pup:
     def thou(self):
         self.thousend = round(self.population / 1000)
 
+    def add_unrest(self,amount):
+        self.unrest += amount * self.unrest_multiplier
+
+    def unrest_decline(self):
+        if self.unrest <= self.min_unrest:
+            pass
+        else:
+            self.unrest -= 0.01
 
 pygame.init()
 W = 1280
 H = 720
 
+font = pygame.font.Font('freesansbold.ttf', 32)
 sc = pygame.display.set_mode((W,H))
 fps = 5
 start_time = time.time()
@@ -52,10 +65,42 @@ clock = pygame.time.Clock()
 day = 1
 pop = pup(10000,0.65,20,12)
 money = mon(10000,0,0)
+colours = {'white': (255,255,255), 'black': (0,0,0), 'blue': (19, 53, 117), 'sand': (209, 144, 40), 'light green': (96, 197, 40)}
+
+
+
+
+
 
 def startmenu():
-    start_game_b = pygame.image.load('')
-    start_game_b_rect = start_game_b.get_rect(center=(W/2, H / 2 + 100))
+    sc.fill(colours['sand'])
+    start_b = pygame.image.load('')
+    start_b_rect = start_b.get_rect(center = (W/2, H/2 + 100))
+    load_b = pygame.image.load()
+    load_b_rect = load_b.get_rect(center = (W/2,H/2))
+    options_b = pygame.image.load('')
+    options_b_rect = options_b.get_rect(center = (W/2, H/2 - 100))
+    exit_b = pygame.image.load('')
+    exit_b_rect = exit_b.get_rect(center = (W/2, H/2 - 200))
+    sc.blit(start_b,start_b_rect)
+    sc.blit(load_b,load_b_rect)
+    sc.blit(options_b,options_b_rect)
+    sc.blit(exit_b,exit_b_rect)
+    pygame.display.flip()
+
+    if pygame.Rect.collidepoint(start_b_rect,pygame.mouse.get_pos()) == True:
+        if pygame.mouse.get_pressed == (1,0,0):
+            #newgame_setup()
+    if pygame.Rect.collidepoint(load_b_rect,pygame.mouse.get_pos()) == True:
+        if pygame.mouse.get_pressed == (1,0,0):
+            #load_game()
+            pass
+    if pygame.Rect.collidepoint(options_b_rect, pygame.mouse.get_pos()) == True:
+        if pygame.mouse.get_pressed == (1, 0, 0):
+            #optionscreen()
+    if pygame.Rect.collidepoint(exit_b_rect, pygame.mouse.get_pos()) == True:
+        if pygame.mouse.get_pressed == (1, 0, 0):
+            exit()
 
 
 def datechange():
@@ -68,6 +113,122 @@ def datechange():
         else:
             date[0], date[1] = 1, 1
             date[2] += 1
+
+
+def newgame_setup():
+    a = 0
+    nationslist = ['British', 'Ukrainian', 'Jewish', 'Nigerian', 'German', 'Indian', 'Brazilian', 'Spanish', 'Saudi arabian', 'Chinese', 'Japanese', 'American']
+    bonuses = {'British':
+                   {
+                        '0': 'Spicy water',
+                        '1': 'Pub culture',
+                        '2': 'Legacy of colonialism'
+                    },
+               'Ukrainian':
+                   {
+                        '0': 'Mild corruption',
+                        '1': 'Incompetent government',
+                        '2': 'Low support from the people'
+                    },
+               'Jewish':
+                   {
+                        '0': 'Search for benefits',
+                        '1': 'Intolerance towards Muslims',
+                        '2': 'No labor on saturday'
+                   },
+                'Nigerian':
+                    {
+                         '0': 'Demographic explosion',
+                         '1': 'Mild corruption',
+                         '2': 'Land of opportunity'
+                    },
+                'German':
+                    {
+                         '0': 'Perfectionism',
+                         '1': 'Left wind',
+                         '2': 'Forestry'
+                    },
+                'Indian':
+                    {
+                         '0': 'Land of opportunity',
+                         '1': 'Mild corruption',
+                         '2': 'Quantity over quality'
+                    },
+                'Brazilian':
+                    {
+                         '0': 'Carnival',
+                         '1': 'Strong corruption',
+                         '2': 'High crime rate'
+                    },
+                'Spanish':
+                    {
+                         '0': 'Siesta',
+                         '1': 'Vegetables everywhere',
+                         '2': 'Legacy of colonialism'
+                    },
+                'Saudi arabian':
+                    {
+                         '0': 'World war III reparations',
+                         '1': 'Farmers incompetence',
+                         '2': 'Expensive construction'
+                    },
+                'Chinese':
+                    {
+                         '0': 'Quantity over quality',
+                         '1': 'Land of opportunity',
+                         '2': 'Political instability'
+                    },
+                'Japanese':
+                    {
+                         '0': 'Demographic grow',
+                         '1': 'New wave of industrialization',
+                         '2': 'Word of the emperor'
+                    },
+                'American':
+                    {
+                         '0': 'Defenders of democracy',
+                         '1': 'Popular unrest',
+                         '2': 'American dream'
+                    }
+    }
+
+    arrow_left = pygame.image.load('')
+    arrow_left_rect = arrow_left.get_rect(center = ())
+    arrow_right = pygame.image.load('')
+    arrow_right_rect = arrow_right.get_rect(center = ())
+    start_game = pygame.image.load('')
+    start_game_rect = start_game.get_rect(center = ())
+    nationality_name = font.render(nationslist[a], True, colours['black'], colours['sand'])
+    nationality_name_rect = nationality_name.get_rect(center=())
+    bonuse_1 = font.render(bonuses[nationslist[a]]['0'], True, colours['black'], colours['sand'])
+    bonuse_1_rect = bonuse_1.get_rect(center = ())
+    bonuse_2 = font.render(bonuses[nationslist[a]]['1'], True, colours['black'], colours['sand'])
+    bonuse_2_rect = bonuse_2.get_rect(center=())
+    bonuse_3 = font.render(bonuses[nationslist[a]]['2'], True, colours['black'], colours['sand'])
+    bonuse_3_rect = bonuse_3.get_rect(center=())
+    sc.blit(bonuse_1,bonuse_1_rect)
+    sc.blit(bonuse_2, bonuse_2_rect)
+    sc.blit(bonuse_3, bonuse_3_rect)
+    sc.blit(arrow_right, arrow_right_rect)
+    sc.blit(arrow_left, arrow_left_rect)
+    sc.blit(start_game, start_game_rect)
+    sc.blit(nationality_name, nationality_name_rect)
+    if pygame.Rect.collidepoint(arrow_left_rect, pygame.mouse.get_pos()) == True:
+        if pygame.mouse.get_pressed == (1, 0, 0):
+            if a != 0:
+                a -= 1
+            else:
+                a = len(nationslist) - 1
+    if pygame.Rect.collidepoint(arrow_right_rect, pygame.mouse.get_pos()) == True:
+        if pygame.mouse.get_pressed == (1, 0, 0):
+            if a != len(nationslist) - 1:
+                a += 1
+            else:
+                a = 0
+    if pygame.Rect.collidepoint(start_game_rect, pygame.mouse.get_pos()) == True:
+        if pygame.mouse.get_pressed == (1, 0, 0):
+            startup(a)
+    pygame.display.flip()
 
 
 def trade():
