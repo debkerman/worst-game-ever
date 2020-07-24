@@ -8,6 +8,7 @@ class mon:
         self.amount = amount
         self.debt = debt
         self.tax = tax
+        self.corruption = 0.05
 
     def add(self,numadd):
         self.amount += numadd
@@ -26,6 +27,12 @@ class pup:
         self.unrest = 0.05
         self.min_unrest = 0.05
         self.unrest_multiplier = 1
+        self.support = 0.8
+
+    def corruption_hit(self):
+        for i in range(0,len(buildings)):
+            buildings[str(i)]['construction']['money'] += buildings[str(i)]['construction']['money'] * self.corruption
+
 
     def fmigration(self):
         a = random.randint(0,100)
@@ -110,6 +117,7 @@ def datechange():
         if date[1] != 12:
             date[0] = 1
             date[1] += 1
+
         else:
             date[0], date[1] = 1, 1
             date[2] += 1
@@ -231,6 +239,94 @@ def newgame_setup():
     pygame.display.flip()
 
 
+def startup(a):
+    if a == 0:
+        resources['43']['population consumption'] *= 1.3
+        resources['146']['population consumption'] *= 1.4
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        pop.migration = 0.5
+        money.corruption_hit()
+    if a == 1:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        money.corruption = 0.50
+        pop.support = 0.2
+        money.corruption_hit()
+    if a == 2:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        for i in range(0,buildings):
+            for j in range(0,buildings):
+                buildings[str(i)]['production amount'][str(j)] = round(buildings[str(i)]['production amount'][str(j)] * 0.85)
+        money.corruption_hit()
+    if a == 3:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        pop.migration = 0.5
+        pop.birthrate = 30
+        money.corruption = 0.5
+        money.corruption_hit()
+    if a == 4:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        for i in range(81,86):
+            pass
+        for i in range(0,len(buildings)):
+            buildings[str(i)]['construction']['money'] += buildings[str(i)]['construction']['money'] * 0.5
+        money.corruption_hit()
+    if a == 5:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        money.corruption = 0.5
+        for i in range(0, buildings):
+            for j in range(0, buildings):
+                buildings[str(i)]['production amount'][str(j)] = round(
+                    buildings[str(i)]['production amount'][str(j)] * 1.25)
+        for i in range(87,len(resources)):
+            resources[str(i)]['cost'] = round(resources[str(i)]['cost'] * 0.7)
+        money.corruption_hit()
+    if a == 6:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        money.corruption = 0.7
+        pop.happines += 0.4
+        money.corruption_hit()
+    if a == 7:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        pop.happines += 0.2
+        pop.migration = 0.4
+        for i in range(31,38):
+            pass
+        money.corruption_hit()
+    if a == 8:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        money.debt += 10000000000
+        for i in range(0,1):
+            pass
+        for i in range(0,len(buildings)):
+            buildings[str(i)]['construction']['money'] += round(buildings[str(i)]['construction']['money'] * 0.8)
+        money.corruption_hit()
+    if a == 9:
+        pass
+    if a == 10:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        pop.birthrate = 26
+        for i in range(0,len(buildings)):
+            buildings[str(i)]['construction']['time'] = round(buildings[str(i)]['construction']['time'] * 0.8)
+        pop.support = 0.9
+        money.corruption_hit()
+    if a == 11:
+        pop = pup(10000, 0.65, 20, 12)
+        money = mon(10000, 0, 0)
+        pop.unrest = 0.4
+        pop.migration = 0.6
+        money.corruption_hit()
+        
+        
 def trade():
     tmp_money = 0
     for i in range(0,len(resources)):
@@ -242,7 +338,13 @@ def trade():
         else:
             tmp_money += resources[str(i)]['stockpile'] * resources[str(i)]['cost']
             resources[str(i)]['stockpile'] = 0
-
+    if money.debt != 0:
+        if money.debt > tmp_money * 0.1:
+            money.debt -= tmp_money * 0.1
+            tmp_money -= tmp_money * 0.1
+        else:
+            tmp_money -= money.debt
+            money.debt = 0
     money.add(tmp_money)
 
 
@@ -449,6 +551,7 @@ resources = {'0': {'name': 'iron ore', 'cost': 105, 'production amount': 0, 'con
              '143': {'name': 'computers', 'cost': 480000, 'production amount': 0, 'consumption amount': 0, 'stockpile': 0, 'population consumption': 0.001, 'embargo': False, 'trade': True, 'trade amount': 0},
              '144': {'name': 'spaceship', 'cost': 50000, 'production amount': 0, 'consumption amount': 0, 'stockpile': 0, 'population consumption': 0, 'embargo': False, 'trade': True, 'trade amount': 0},
              '145': {'name': 'antimatter', 'cost': 2100000000000, 'production amount': 0, 'consumption amount': 0, 'stockpile': 0, 'population consumption': 0, 'embargo': False, 'trade': True, 'trade amount': 0},
+             '146': {'name': 'beer', 'cost': 5000, 'production amount': 0, 'consumption amount': 0, 'stockpile': 0, 'population consumption': 0.3, 'embargo': False, 'trade': True, 'trade amount': 0},
 
              }
 
