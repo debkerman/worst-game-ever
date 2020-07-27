@@ -3,38 +3,6 @@ import time
 import pygame
 import random
 
-class econ:
-    def __init__(self):
-        self.averege_payment = 300
-        self.monthly_GDP = 0
-        self.yearly_GDP = []
-        self.monthlist_GDP = [0,1,2,3,4,5,6,7,8,9,10,11]
-        self.yearly_list_GDP = []
-
-    def monthly_gdp_change(self):
-        if date[1] > 1:
-            a = self.monthlist_GDP[date[1]- 2] / self.monthlist_GDP[date[1] - 3] - 1
-            return(a)
-
-    def yearly_gdp_change(self):
-        if date[2] >= 2101:
-            a = self.yearly_list_GDP[len(self.yearly_list_GDP) - 1] / self.yearly_list_GDP[len(self.yearly_list_GDP) - 2] - 1
-            return(a)
-
-    def monthly_gdp_upd(self):
-        tmp = 0
-        for i in range(resources):
-            tmp += resources[str(i)]['production amount'] * resources[str(i)]['cost']
-        self.monthly_GDP = tmp
-        self.monthlist_GDP[date[1]-1] = tmp
-
-    def yearly_GDP_update(self):
-        self.yearly_GDP = 0
-        for i in self.monthlist_GDP:
-            self.yearly_GDP += i
-        self.yearly_list_GDP.append(self.yearly_GDP)
-        for i in self.monthlist_GDP:
-            self.monthlist_GDP[i] = 0
 
 class mon:
     def __init__(self,amount,debt,tax):
