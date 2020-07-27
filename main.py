@@ -3,12 +3,50 @@ import time
 import pygame
 import random
 
+class econ:
+    def __init__(self):
+        self.averege_payment = 300
+        self.monthly_GDP = 0
+        self.yearly_GDP = []
+        self.monthlist_GDP = [0,1,2,3,4,5,6,7,8,9,10,11]
+        self.yearly_list_GDP = []
+
+    def monthly_gdp_change(self):
+        if date[1] > 1:
+            a = self.monthlist_GDP[date[1]- 2] / self.monthlist_GDP[date[1] - 3] - 1
+            return(a)
+
+    def yearly_gdp_change(self):
+        if date[2] >= 2101:
+            a = self.yearly_list_GDP[len(self.yearly_list_GDP) - 1] / self.yearly_list_GDP[len(self.yearly_list_GDP) - 2] - 1
+            return(a)
+
+    def monthly_gdp_upd(self):
+        tmp = 0
+        for i in range(resources):
+            tmp += resources[str(i)]['production amount'] * resources[str(i)]['cost']
+        self.monthly_GDP = tmp
+        self.monthlist_GDP[date[1]-1] = tmp
+
+    def yearly_GDP_update(self):
+        self.yearly_GDP = 0
+        for i in self.monthlist_GDP:
+            self.yearly_GDP += i
+        self.yearly_list_GDP.append(self.yearly_GDP)
+        for i in self.monthlist_GDP:
+            self.monthlist_GDP[i] = 0
+
 class mon:
     def __init__(self,amount,debt,tax):
         self.amount = amount
         self.debt = debt
         self.tax = tax
         self.corruption = 0.05
+        self.metropoly_tax = 0.1
+
+    def corruption_hit(self):
+        for i in range(0,len(buildings)):
+            buildings[str(i)]['construction']['money'] += buildings[str(i)]['construction']['money'] * self.corruption
 
     def add(self,numadd):
         self.amount += numadd
@@ -29,10 +67,9 @@ class pup:
         self.unrest_multiplier = 1
         self.support = 0.8
 
-    def corruption_hit(self):
-        for i in range(0,len(buildings)):
-            buildings[str(i)]['construction']['money'] += buildings[str(i)]['construction']['money'] * self.corruption
 
+    def migration_upd(self):
+        self.migration_amount = round(self.population / 100)
 
     def fmigration(self):
         a = random.randint(0,100)
@@ -60,20 +97,19 @@ class pup:
 pygame.init()
 W = 1280
 H = 720
-
-font = pygame.font.Font('freesansbold.ttf', 32)
+economy = econ()
+font = pygame.font.Font('freesansbold.ttf', 20)
+font2 = pygame.font.Font('freesansbold.ttf', 64)
+font3 = pygame.font.Font('freesansbold.ttf', 16)
 sc = pygame.display.set_mode((W,H))
-fps = 5
+fps = 30
 start_time = time.time()
 stock = []
-date =[1,1,2200]
+date =[1,1,2100]
 calender = [31,28,31,30,31,30,31,31,30,31,30,31]
 clock = pygame.time.Clock()
-day = 1
-pop = pup(10000,0.65,20,12)
-money = mon(10000,0,0)
 colours = {'white': (255,255,255), 'black': (0,0,0), 'blue': (19, 53, 117), 'sand': (209, 144, 40), 'light green': (96, 197, 40)}
-
+pop = pup(15000, 0.65, 20, 12)
 
 
 
@@ -81,34 +117,70 @@ colours = {'white': (255,255,255), 'black': (0,0,0), 'blue': (19, 53, 117), 'san
 
 def startmenu():
     sc.fill(colours['sand'])
-    start_b = pygame.image.load('')
-    start_b_rect = start_b.get_rect(center = (W/2, H/2 + 100))
-    load_b = pygame.image.load()
+    start_b = pygame.image.load('start_game.jpg')
+    start_b_rect = start_b.get_rect(center = (W/2, H/2 - 100))
+    load_b = pygame.image.load('load_game.jpg')
     load_b_rect = load_b.get_rect(center = (W/2,H/2))
-    options_b = pygame.image.load('')
-    options_b_rect = options_b.get_rect(center = (W/2, H/2 - 100))
-    exit_b = pygame.image.load('')
-    exit_b_rect = exit_b.get_rect(center = (W/2, H/2 - 200))
-    sc.blit(start_b,start_b_rect)
-    sc.blit(load_b,load_b_rect)
-    sc.blit(options_b,options_b_rect)
-    sc.blit(exit_b,exit_b_rect)
-    pygame.display.flip()
+    options_b = pygame.image.load('options.jpg')
+    options_b_rect = options_b.get_rect(center = (W/2, H/2 + 100))
+    exit_b = pygame.image.load('exit.jpg')
+    exit_b_rect = exit_b.get_rect(center = (W/2, H/2 + 200))
+    
+    while True:
+        b = pygame.mouse.get_pos()
+        pygame.event.pump()
+        sc.blit(start_b,start_b_rect)
+        sc.blit(load_b,load_b_rect)
+        sc.blit(options_b,options_b_rect)
+        sc.blit(exit_b,exit_b_rect)
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if pygame.Rect.collidepoint(start_b_rect,b):
+                    newgame_setup()
+                if pygame.Rect.collidepoint(load_b_rect,b) == True:
+                    load_game()
+                    pass
+                if pygame.Rect.collidepoint(options_b_rect,b) == True:
+                    optionscreen()
+                    pass
+                if pygame.Rect.collidepoint(exit_b_rect, b) == True:
+                    exit()
+            clock.tick(fps)
+            pygame.display.update()
 
-    if pygame.Rect.collidepoint(start_b_rect,pygame.mouse.get_pos()) == True:
-        if pygame.mouse.get_pressed == (1,0,0):
-            #newgame_setup()
-    if pygame.Rect.collidepoint(load_b_rect,pygame.mouse.get_pos()) == True:
-        if pygame.mouse.get_pressed == (1,0,0):
-            #load_game()
-            pass
-    if pygame.Rect.collidepoint(options_b_rect, pygame.mouse.get_pos()) == True:
-        if pygame.mouse.get_pressed == (1, 0, 0):
-            #optionscreen()
-    if pygame.Rect.collidepoint(exit_b_rect, pygame.mouse.get_pos()) == True:
-        if pygame.mouse.get_pressed == (1, 0, 0):
-            exit()
+def optionscreen():
+    sc.fill(colours['sand'])
+    arrow_left = pygame.image.load('arrow left.jpg')
+    arrow_left_rect = arrow_left.get_rect(center=(100, 100))
+    t = font2.render('Sorry still beta', True, colours['black'], colours['sand'])
+    t_rect = t.get_rect(center = (W/2,H/2))
+    sc.blit(t, t_rect)
+    sc.blit(arrow_left, arrow_left_rect)
+    pygame.display.update()
+    while True:
+        b = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if pygame.Rect.collidepoint(arrow_left_rect, b) == True:
+                    startmenu()
 
+
+
+def load_game():
+    sc.fill(colours['sand'])
+    arrow_left = pygame.image.load('arrow left.jpg')
+    arrow_left_rect = arrow_left.get_rect(center=(100, 100))
+    t = font2.render('Sorry still beta', True, colours['black'], colours['sand'])
+    t_rect = t.get_rect(center=(W / 2, H / 2))
+    sc.blit(t, t_rect)
+    sc.blit(arrow_left, arrow_left_rect)
+    pygame.display.update()
+    while True:
+        b = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if pygame.Rect.collidepoint(arrow_left_rect, b) == True:
+                    startmenu()
 
 def datechange():
     if date[0] <= calender[date[1] - 1]:
@@ -124,210 +196,432 @@ def datechange():
 
 
 def newgame_setup():
+
+
     a = 0
-    nationslist = ['British', 'Ukrainian', 'Jewish', 'Nigerian', 'German', 'Indian', 'Brazilian', 'Spanish', 'Saudi arabian', 'Chinese', 'Japanese', 'American']
+    nationslist = ['British', 'Ukrainian', 'Jewish', 'Nigerian', 'German', 'Indian', 'Brazilian', 'Spanish', 'Saudi arabian', 'Cuba', 'Japanese', 'American']
     bonuses = {'British':
                    {
                         '0': 'Spicy water',
                         '1': 'Pub culture',
-                        '2': 'Legacy of colonialism'
+                        '2': 'Legacy of colonialism',
+                        '3': 'Starting money: 1000000000',
+                        '4': 'Starting population: 12000',
+                        '5': 'Resurrection of once grate British empire at another level.'
                     },
                'Ukrainian':
                    {
                         '0': 'Mild corruption',
                         '1': 'Incompetent government',
-                        '2': 'Low support from the people'
+                        '2': 'Low support from the people',
+                        '3': 'Starting money: 500000000',
+                        '4': 'Starting population: 10000',
+                        '5': 'Unstable government bringing new hope to the people by chance to start new life on new planet, '
+                             ' while trying to make as much money on them as they can.'
                     },
                'Jewish':
                    {
                         '0': 'Search for benefits',
                         '1': 'Intolerance towards Muslims',
-                        '2': 'No labor on saturday'
+                        '2': 'No labor on saturday',
+                        '3': 'Starting money: 1000000000',
+                        '4': 'Starting population: 9000',
+                        '5': 'After WW3 Israel become uninhabitable. Survivors decided to leave Earth'
                    },
                 'Nigerian':
                     {
                          '0': 'Demographic explosion',
                          '1': 'Mild corruption',
-                         '2': 'Land of opportunity'
+                         '2': 'Land of opportunity',
+                         '3': 'Starting money: 500000000',
+                         '4': 'Starting population: 20000',
+                         '5': 'The most developed nation in africa suffers from massive overpopulation. '
+                              'Wealthy part of nation is trying to ran away from this problem.'
                     },
                 'German':
                     {
                          '0': 'Perfectionism',
                          '1': 'Left wind',
-                         '2': 'Forestry'
+                         '2': 'Forestry',
+                         '3': 'Starting money: 1500000000',
+                         '4': 'Starting population: 30000',
+                         '5': 'Due to excessive amounts of migrants from east, germans decided to leave Earth.'
                     },
                 'Indian':
                     {
                          '0': 'Land of opportunity',
                          '1': 'Mild corruption',
-                         '2': 'Quantity over quality'
+                         '2': 'Quantity over quality',
+                         '3': 'Starting money: 800000000',
+                         '4': 'Starting population: 20000',
+                         '5': 'Already overpopulated country is running out of living space.'
+                              'Brave colonists will build New New deli at another planet.'
                     },
                 'Brazilian':
                     {
                          '0': 'Carnival',
                          '1': 'Strong corruption',
-                         '2': 'High crime rate'
+                         '2': 'High crime rate',
+                         '3': 'Starting money: 700000000',
+                         '4': 'Starting population: 10000',
+                         '5': 'New ecological policy of earth locked expansion of Brazilian cities. Government funded colonial company to save brazilian nation from overpopulating earth.'
                     },
                 'Spanish':
                     {
                          '0': 'Siesta',
                          '1': 'Vegetables everywhere',
-                         '2': 'Legacy of colonialism'
+                         '2': 'Legacy of colonialism',
+                         '3': 'Starting money: 1000000000',
+                         '4': 'Starting population: 10000',
+                         '5': 'Will it be start of new colonial empire of spain?'
                     },
                 'Saudi arabian':
                     {
                          '0': 'World war III reparations',
                          '1': 'Farmers incompetence',
-                         '2': 'Expensive construction'
+                         '2': 'Expensive construction',
+                         '3': 'Starting money: 1000000000',
+                         '4': 'Starting population: 5000',
+                         '5': 'Program "Salvation" is last chance of survival for Saudi arabia'
                     },
-                'Chinese':
+                'Cuba':
                     {
-                         '0': 'Quantity over quality',
+                         '0': 'Land of freedom',
                          '1': 'Land of opportunity',
-                         '2': 'Political instability'
+                         '2': 'Milk good',
+                         '3': 'Starting money: 800000000',
+                         '4': 'Starting population: 6000',
+                         '5': 'There will be always place for freedom'
                     },
                 'Japanese':
                     {
                          '0': 'Demographic grow',
                          '1': 'New wave of industrialization',
-                         '2': 'Word of the emperor'
+                         '2': 'Word of the emperor',
+                         '3': 'Starting money: 1800000000',
+                         '4': 'Starting population: 14000',
+                         '5': 'Its time to conquer space in name of Emperor, Banzai!'
                     },
                 'American':
                     {
                          '0': 'Defenders of democracy',
                          '1': 'Popular unrest',
-                         '2': 'American dream'
+                         '2': 'American dream',
+                         '3': 'Starting money: 1500000000',
+                         '4': 'Starting population: 15000',
+                         '5': 'Great American nation will bring democracy even if you on other side of universe!'
                     }
     }
 
-    arrow_left = pygame.image.load('')
-    arrow_left_rect = arrow_left.get_rect(center = ())
-    arrow_right = pygame.image.load('')
-    arrow_right_rect = arrow_right.get_rect(center = ())
-    start_game = pygame.image.load('')
-    start_game_rect = start_game.get_rect(center = ())
-    nationality_name = font.render(nationslist[a], True, colours['black'], colours['sand'])
-    nationality_name_rect = nationality_name.get_rect(center=())
-    bonuse_1 = font.render(bonuses[nationslist[a]]['0'], True, colours['black'], colours['sand'])
-    bonuse_1_rect = bonuse_1.get_rect(center = ())
-    bonuse_2 = font.render(bonuses[nationslist[a]]['1'], True, colours['black'], colours['sand'])
-    bonuse_2_rect = bonuse_2.get_rect(center=())
-    bonuse_3 = font.render(bonuses[nationslist[a]]['2'], True, colours['black'], colours['sand'])
-    bonuse_3_rect = bonuse_3.get_rect(center=())
-    sc.blit(bonuse_1,bonuse_1_rect)
-    sc.blit(bonuse_2, bonuse_2_rect)
-    sc.blit(bonuse_3, bonuse_3_rect)
-    sc.blit(arrow_right, arrow_right_rect)
-    sc.blit(arrow_left, arrow_left_rect)
-    sc.blit(start_game, start_game_rect)
-    sc.blit(nationality_name, nationality_name_rect)
-    if pygame.Rect.collidepoint(arrow_left_rect, pygame.mouse.get_pos()) == True:
-        if pygame.mouse.get_pressed == (1, 0, 0):
-            if a != 0:
-                a -= 1
-            else:
-                a = len(nationslist) - 1
-    if pygame.Rect.collidepoint(arrow_right_rect, pygame.mouse.get_pos()) == True:
-        if pygame.mouse.get_pressed == (1, 0, 0):
-            if a != len(nationslist) - 1:
-                a += 1
-            else:
-                a = 0
-    if pygame.Rect.collidepoint(start_game_rect, pygame.mouse.get_pos()) == True:
-        if pygame.mouse.get_pressed == (1, 0, 0):
-            startup(a)
-    pygame.display.flip()
+    arrow_left = pygame.image.load('arrow left.jpg')
+    arrow_left.set_colorkey(colours['white'])
+    arrow_left_rect = arrow_left.get_rect(center = (800,200))
+    arrow_right = pygame.image.load('arrow right.jpg')
+    arrow_right.set_colorkey(colours['white'])
+    arrow_right_rect = arrow_right.get_rect(center = (1100,200))
+    start_game = pygame.image.load('start.jpg')
+    start_game_rect = start_game.get_rect(center = (1000,600))
 
 
-def startup(a):
+    while True:
+        nationality_name = font.render(nationslist[a], True, colours['black'], colours['sand'])
+        nationality_name_rect = nationality_name.get_rect(center=(950, 200))
+        sc.fill(colours['sand'])
+        bonuse_1 = font.render(bonuses[nationslist[a]]['0'], True, colours['black'], colours['sand'])
+        bonuse_1_rect = bonuse_1.get_rect(topleft = (740, 260))
+        bonuse_2 = font.render(bonuses[nationslist[a]]['1'], True, colours['black'], colours['sand'])
+        bonuse_2_rect = bonuse_2.get_rect(topleft = (740, 280))
+        bonuse_3 = font.render(bonuses[nationslist[a]]['2'], True, colours['black'], colours['sand'])
+        bonuse_3_rect = bonuse_3.get_rect(topleft = (740, 300))
+        stat_1 = font.render(bonuses[nationslist[a]]['3'], True, colours['black'], colours['sand'])
+        stat_2 = font.render(bonuses[nationslist[a]]['4'], True, colours['black'], colours['sand'])
+        stat_1_rect = stat_1.get_rect(topleft = (740,320))
+        stat_2_rect = stat_2.get_rect(topleft = (740,340))
+        desc = font3.render(bonuses[nationslist[a]]['5'], True, colours['black'], colours['sand'])
+        desc_rect = desc.get_rect(topleft = (0,0))
+        sc.blit(desc,desc_rect)
+        sc.blit(bonuse_1,bonuse_1_rect)
+        sc.blit(bonuse_2, bonuse_2_rect)
+        sc.blit(bonuse_3, bonuse_3_rect)
+        sc.blit(stat_1, stat_1_rect)
+        sc.blit(stat_2, stat_2_rect)
+        sc.blit(arrow_right, arrow_right_rect)
+        sc.blit(arrow_left, arrow_left_rect)
+        sc.blit(start_game, start_game_rect)
+        sc.blit(nationality_name, nationality_name_rect)
+        pygame.display.update()
+        pygame.event.pump()
+        b = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if pygame.Rect.collidepoint(arrow_left_rect, b) == True:
+                        if a != 0:
+                            a -= 1
+                        else:
+                            a = len(nationslist) - 1
+                        pygame.display.update()
+                if pygame.Rect.collidepoint(arrow_right_rect, b) == True:
+                        if a != len(nationslist) - 1:
+                            a += 1
+                        else:
+                            a = 0
+                        pygame.display.update()
+                if pygame.Rect.collidepoint(start_game_rect, b) == True:
+                        startup(a,pop)
+                clock.tick(fps)
+                pygame.display.update()
+
+
+
+
+
+def startup(a,pop):
     if a == 0:
         resources['43']['population consumption'] *= 1.3
         resources['146']['population consumption'] *= 1.4
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 12000, 0.65, 20, 12
+        money = [10000000000, 10000000, 0]
         pop.migration = 0.5
-        money.corruption_hit()
+        gameplay(money,pop,econ)
     if a == 1:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
-        money.corruption = 0.50
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 10000, 0.65, 20, 12
+        money = [5000000000, 5000000000, 0]
+        mon.corruption = 0.50
+        mon.metropoly_tax = 0.25
         pop.support = 0.2
-        money.corruption_hit()
+        gameplay(money,pop,econ)
     if a == 2:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
-        for i in range(0,buildings):
-            for j in range(0,buildings):
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 9000, 0.65, 20, 12
+        money = [10000000000, 0, 0]
+        mon.metropoly_tax = 0
+        for i in range(0,len(buildings)):
+            for j in range(0,len(buildings)):
                 buildings[str(i)]['production amount'][str(j)] = round(buildings[str(i)]['production amount'][str(j)] * 0.85)
-        money.corruption_hit()
+        gameplay(money,pop,econ)
     if a == 3:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 20000, 0.65, 30, 12
+        money = [5000000000, 5000000000, 0]
         pop.migration = 0.5
-        pop.birthrate = 30
-        money.corruption = 0.5
-        money.corruption_hit()
+        mon.corruption = 0.5
+        gameplay(money,pop,econ)
     if a == 4:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
+        pop.population, pop.active_part, pop.birthrate, pop.deathrate = 30000, 0.65, 20, 12
+        money = [15000000000, 0, 0]
         for i in range(81,86):
             pass
         for i in range(0,len(buildings)):
             buildings[str(i)]['construction']['money'] += buildings[str(i)]['construction']['money'] * 0.5
-        money.corruption_hit()
+        gameplay(money, pop,econ)
     if a == 5:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
-        money.corruption = 0.5
-        for i in range(0, buildings):
-            for j in range(0, buildings):
-                buildings[str(i)]['production amount'][str(j)] = round(
-                    buildings[str(i)]['production amount'][str(j)] * 1.25)
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 20000, 0.65, 20, 12
+        money = [8000000000, 8000000000, 0]
+        mon.corruption = 0.5
+        for i in range(0, len(buildings)):
+            print(i)
+            for j in range(0, len(buildings[str(i)]['production amount'])):
+                buildings[str(i)]['production amount'][j] = round(
+                    buildings[str(i)]['production amount'][j] * 1.25)
         for i in range(87,len(resources)):
             resources[str(i)]['cost'] = round(resources[str(i)]['cost'] * 0.7)
-        money.corruption_hit()
+        resources['73']['population consumption'] = 0
+        gameplay(money, pop,econ)
     if a == 6:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
-        money.corruption = 0.7
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 10000, 0.65, 20, 12
+        money = [7000000000, 0, 0]
+        mon.corruption = 0.7
         pop.happines += 0.4
-        money.corruption_hit()
+        gameplay(money, pop,econ)
     if a == 7:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 10000, 0.65, 20, 12
+        money = [10000000000, 10000000000, 0]
         pop.happines += 0.2
         pop.migration = 0.4
         for i in range(31,38):
             pass
-        money.corruption_hit()
+        gameplay(money, pop,econ)
     if a == 8:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
-        money.debt += 10000000000
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 5000, 0.65, 20, 12
+        money = [100000000000, 0, 0]
+
+        mon.metropoly_tax = 0
+        pop.migration = 0.1
         for i in range(0,1):
             pass
         for i in range(0,len(buildings)):
             buildings[str(i)]['construction']['money'] += round(buildings[str(i)]['construction']['money'] * 0.8)
-        money.corruption_hit()
+        gameplay(money, pop,econ)
     if a == 9:
-        pass
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 6000, 0.65, 20, 12
+        money = [8000000000, 0, 0]
+        pop.support = 1
+        pop.migration = 0.5
+        #buildings[n]['production amount']['0'] *= 1.5
+        gameplay(money, pop,econ)
     if a == 10:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
-        pop.birthrate = 26
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 20000, 0.65, 26, 12
+        money = [18000000000, 10000000000, 0]
         for i in range(0,len(buildings)):
             buildings[str(i)]['construction']['time'] = round(buildings[str(i)]['construction']['time'] * 0.8)
-        pop.support = 0.9
-        money.corruption_hit()
+        pop.support = 1
+        gameplay(money, pop,econ)
     if a == 11:
-        pop = pup(10000, 0.65, 20, 12)
-        money = mon(10000, 0, 0)
+        pop.population,pop.active_part,pop.birthrate,pop.deathrate = 15000, 0.65, 20, 12
+        money = [15000000000, 10000000000, 0]
         pop.unrest = 0.4
         pop.migration = 0.6
-        money.corruption_hit()
-        
-        
-def trade():
+        gameplay(money,pop,econ)
+
+
+
+def gameplay(money, pop, econ):
+    num = 0
+    day = 0
+    speed = 1
+    p_speed = 0
+    money = mon(money[0],money[1],money[2])
+    sc.fill(colours['sand'])
+    while True:
+        panel = pygame.image.load('Panel 2.jpg')
+        panel_rect = panel.get_rect(center=(W / 2, H / 2))
+        planet = pygame.image.load('planet.jpg')
+        planet_rect = planet.get_rect(topleft=(10,77))
+        if 10 > len(str(money.amount)) > 7:
+            mon_amount = round(money.amount / 1000000,2)
+            mon_amount = str(mon_amount)
+            mon_amount = mon_amount + 'M'
+        if 13 > len(str(money.amount)) > 9:
+            mon_amount = round(money.amount / 1000000000,2)
+            mon_amount = str(mon_amount)
+            mon_amount = mon_amount + 'B'
+        if 16 > len(str(money.amount)) > 13:
+            mon_amount = round(money.amount / 1000000000000,2)
+            mon_amount = str(mon_amount)
+            mon_amount = mon_amount + 'T'
+        if len(str(money.amount)) < 7:
+            mon_amount = str(money.amount)
+        moneytext = font.render(mon_amount, True, colours['white'], colours['black'])
+        moneytext.set_colorkey(colours['black'])
+        moneytext_rect = moneytext.get_rect(center = (580, 35))
+        if 10 > len(str(pop.population)) > 7:
+            pop_amount = round(pop.population / 1000000,2)
+            pop_amount = str(pop_amount)
+            pop_amount = pop_amount + 'M'
+        if 13 > len(str(pop.population)) > 9:
+            pop_amount = round(pop.population / 1000000000,2)
+            pop_amount = str(pop_amount)
+            pop_amount = pop_amount + 'B'
+        if 16 > len(str(pop.population)) > 13:
+            pop_amount = round(pop.population / 1000000000000,2)
+            pop_amount = str(pop_amount)
+            pop_amount = pop_amount + 'T'
+        if len(str(pop.population)) <= 7:
+            pop_amount = str(pop.population)
+        population_text = font.render(pop_amount, True, colours['white'], colours['black'])
+        population_text.set_colorkey(colours['black'])
+        population_text_rect = population_text.get_rect(center = (800, 35))
+        date_img = font.render((str(date[0]) + ':' + str(date[1]) + ':' + str(date[2])), True, colours['white'], colours['black'])
+        date_img.set_colorkey(colours['black'])
+        date_img_rect = date_img.get_rect(center=(355, 35))
+        construction_button = pygame.image.load('construction button.jpg')
+        construction_button_rect = construction_button.get_rect(center =(1110,145))
+        resources_button = pygame.image.load('resources button.jpg')
+        resources_button_rect = resources_button.get_rect(center=(1110, 245))
+        policies_button = pygame.image.load('policies button.jpg')
+        policies_button_rect = policies_button.get_rect(center=(1110, 345))
+        research_button = pygame.image.load('research button.jpg')
+        research_button_rect = research_button.get_rect(center=(1110, 445))
+        kek_text = font.render('Made by two idiots', True, colours['white'], colours['black'])
+        kek_text.set_colorkey(colours['black'])
+        kek_text_rect = kek_text.get_rect(center=(1110, 545))
+        pause = pygame.image.load('pause.jpg')
+        pause_rect = pause.get_rect(center = (45,33))
+        speed_1 = pygame.image.load('speed 1.jpg')
+        speed_1_rect = speed_1.get_rect(center=(100, 33))
+        speed_2 = pygame.image.load('speed 1.jpg')
+        speed_2_rect = speed_2.get_rect(center=(135, 33))
+        speed_3 = pygame.image.load('speed 1.jpg')
+        speed_3_rect = speed_3.get_rect(center=(170, 33))
+        sc.blit(panel, panel_rect)
+        sc.blit(construction_button, construction_button_rect)
+        sc.blit(resources_button, resources_button_rect)
+        sc.blit(policies_button, policies_button_rect)
+        sc.blit(research_button, research_button_rect)
+        sc.blit(pause,pause_rect)
+        sc.blit(speed_1, speed_1_rect)
+        sc.blit(speed_2, speed_2_rect)
+        sc.blit(speed_3, speed_3_rect)
+        sc.blit(kek_text,kek_text_rect)
+        sc.blit(planet,planet_rect)
+        sc.blit(moneytext,moneytext_rect)
+        sc.blit(date_img, date_img_rect)
+        sc.blit(population_text, population_text_rect)
+
+
+        if speed == 0:
+            num = 0
+            day += 0
+        if speed == 1:
+            if num == fps:
+                day+=1
+                num = 0
+            else:
+                pass
+        if speed == 5:
+            if num == fps / speed:
+                day += 1
+                num = 0
+            else:
+                pass
+        if speed == 30:
+            if num == fps / speed:
+                day += 1
+                num = 0
+
+
+        if speed != 0:
+            if num == 0:
+                datechange()
+        else:
+            pass
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                b = pygame.mouse.get_pos()
+                if pygame.Rect.collidepoint(speed_1_rect, b) == True:
+                    if speed!= 1:
+                        speed = 1
+                    else:
+                        pass
+                if pygame.Rect.collidepoint(speed_2_rect, b) == True:
+                    if speed != 5:
+                        speed = 5
+                    else:
+                        pass
+                if pygame.Rect.collidepoint(speed_3_rect, b) == True:
+                    if speed != 30:
+                        speed = 30
+                    else:
+                        pass
+                if pygame.Rect.collidepoint(pause_rect, b) == True:
+                    if speed != 0:
+                        speed = 0
+                    else:
+                        pass
+                if pygame.Rect.collidepoint(resources_button_rect, b) == True:
+                    pass
+        if date[0] == calender[date[1] - 1]:
+            monthly_change(money,pop)
+            monthly_trade(money)
+        if date[1] == 12 and date[0] == 31:
+            pop.population_grow()
+            pass
+        print(date, money.amount, pop.population, speed)
+        num += 1
+        clock.tick(fps)
+        pygame.display.update()
+
+
+def trade(money):
     tmp_money = 0
     for i in range(0,len(resources)):
         if resources[str(i)]['stockpile'] < 0:
@@ -338,15 +632,31 @@ def trade():
         else:
             tmp_money += resources[str(i)]['stockpile'] * resources[str(i)]['cost']
             resources[str(i)]['stockpile'] = 0
+    if tmp_money > 1000000:
+        tmp_money -= round((tmp_money * money.metropoly_tax))
     if money.debt != 0:
         if money.debt > tmp_money * 0.1:
-            money.debt -= tmp_money * 0.1
-            tmp_money -= tmp_money * 0.1
+            money.debt -= round((tmp_money * 0.1))
+            tmp_money -= round((tmp_money * 0.1))
         else:
             tmp_money -= money.debt
             money.debt = 0
     money.add(tmp_money)
 
+def monthly_trade(money):
+    tmp_money = 0
+    for i in range(0, len(resources)):
+        if resources[str(i)]['stockpile'] < 0:
+            tmp_money -= abs(resources[str(i)]['stockpile'] * resources[str(i)]['cost'])
+        if resources[str(i)]['trade amount'] != 0:
+            resources[str(i)]['stockpile'] += resources[str(i)]['trade amount']
+            tmp_money += resources[str(i)]['trade amount'] * resources[str(i)]['cost']
+        else:
+            tmp_money += resources[str(i)]['stockpile'] * resources[str(i)]['cost']
+            resources[str(i)]['stockpile'] = 0
+    if tmp_money > 1000000:
+        tmp_money -= round((tmp_money * money.metropoly_tax))
+    return(tmp_money)
 
 def production():
     for i in range(0,len(buildings)):
@@ -359,7 +669,7 @@ def production():
             pass
 
 
-def pp_cons():
+def pp_cons(pop):
     for i in range(0,len(resources)):
         if resources[str(i)]['population consumption'] != 0:
             resources[str(i)]['stockpile'] -= resources[str(i)]['population consumption'] * pop.thousend
@@ -394,15 +704,16 @@ def energy():
     return(tmp)
 
 
-def monthly_change():
+def monthly_change(money,pop):
     pop.thou()
+    pop.migration_upd()
     pop.fmigration()
     production()
     consumption()
     stockpile()
-    pp_cons()
+    pp_cons(pop)
     pop.work()
-    trade()
+    trade(money)
 
 
 resources = {'0': {'name': 'iron ore', 'cost': 105, 'production amount': 0, 'consumption amount': 0, 'stockpile': 0, 'population consumption': 0, 'embargo': False, 'trade': True, 'trade amount': 0},
@@ -555,17 +866,17 @@ resources = {'0': {'name': 'iron ore', 'cost': 105, 'production amount': 0, 'con
 
              }
 
-buildings = {'0': {'name': 'iron ore mining industry', 'level': 10,  'production': ['0'], 'production amount': [600], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
-             '1': {'name': 'copper ore mining industry', 'level': 0,  'production': ['1'], 'production amount': [150], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
-             '2': {'name': 'aluminum ore mining industry', 'level': 0,  'production': ['2'], 'production amount': [400], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
-             '3': {'name': 'tin ore mining industry', 'level': 0,  'production': ['3'], 'production amount': [80], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+buildings = {'0': {'name': 'iron ore mining industry', 'level': 4,  'production': ['0'], 'production amount': [600], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+             '1': {'name': 'copper ore mining industry', 'level': 1,  'production': ['1'], 'production amount': [150], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+             '2': {'name': 'aluminum ore mining industry', 'level': 1,  'production': ['2'], 'production amount': [400], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+             '3': {'name': 'tin ore mining industry', 'level': 1,  'production': ['3'], 'production amount': [80], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '4': {'name': 'lead ore mining industry', 'level': 0,  'production': ['4'], 'production amount': [200], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '5': {'name': 'chrome ore mining industry', 'level': 0,  'production': ['5'], 'production amount': [200], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '6': {'name': 'nickel ore mining industry', 'level': 0,  'production': ['6'], 'production amount': [200], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '7': {'name': 'titanium ore mining industry', 'level': 0,  'production': ['7'], 'production amount': [500], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '8': {'name': 'magnesium ore mining industry', 'level': 0,  'production': ['8'], 'production amount': [250], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '9': {'name': 'rare earth metals ore mining industry', 'level': 0,  'production': ['9'], 'production amount': [400], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
-             '10': {'name': 'lithium ore mining industry', 'level': 0,  'production': ['10'], 'production amount': [60], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+             '10': {'name': 'lithium ore mining industry', 'level': 1,  'production': ['10'], 'production amount': [60], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '11': {'name': 'tungsten ore mining industry', 'level': 0,  'production': ['11'], 'production amount': [90], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '12': {'name': 'uranium ore mining industry', 'level': 0,  'production': ['12'], 'production amount': [50], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '13': {'name': 'cobalt ore mining industry', 'level': 0,  'production': ['13'], 'production amount': [30], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
@@ -576,10 +887,10 @@ buildings = {'0': {'name': 'iron ore mining industry', 'level': 10,  'production
              '18': {'name': 'graphite mining industry', 'level': 0,  'production': ['18'], 'production amount': [110], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '19': {'name': 'gems mining industry', 'level': 0,  'production': ['19'], 'production amount': [0.0001], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '20': {'name': 'platinum mining industry', 'level': 0,  'production': ['20'], 'production amount': [0.0002], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
-             '21': {'name': 'salt mining industry', 'level': 0,  'production': ['21'], 'production amount': [50], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
-             '22': {'name': 'clay mining industry', 'level': 0,  'production': ['22'], 'production amount': [500], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
-             '23': {'name': 'sand mining industry', 'level': 0,  'production': ['23'], 'production amount': [400], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
-             '24': {'name': 'stone mining industry', 'level': 0,  'production': ['24'], 'production amount': [1100], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+             '21': {'name': 'salt mining industry', 'level': 1,  'production': ['21'], 'production amount': [50], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+             '22': {'name': 'clay mining industry', 'level': 2,  'production': ['22'], 'production amount': [500], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+             '23': {'name': 'sand mining industry', 'level': 2,  'production': ['23'], 'production amount': [400], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
+             '24': {'name': 'stone mining industry', 'level': 2,  'production': ['24'], 'production amount': [1100], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '25': {'name': 'sulfur mining industry', 'level': 0,  'production': ['25'], 'production amount': [50], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '26': {'name': 'asteroid mining', 'level': 0,  'production': ['0', '1', '2', '5', '6', '7', '8', '17'], 'production amount': [2000, 800, 1500, 1000, 1000, 1500, 400, 0.02], 'consumption': ['none'], 'consumption amount': ['none'], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
              '27': {'name': 'wheat field', 'level': 10, 'production': ['26'], 'production amount': [7], 'consumption': ['none'], 'consumption amount': [0], 'energy consumption': 10, 'active': True, 'construction': {'money': 800000, 'time': 60}},
@@ -587,16 +898,5 @@ buildings = {'0': {'name': 'iron ore mining industry', 'level': 10,  'production
 
              }
 
+startmenu()
 
-
-while True:
-    day += 1
-    if date[0] == calender[date[1] - 1]:
-        monthly_change()
-    if date[1] == 12 and date[0] == 31:
-        pop.population_grow()
-        pass
-    print(date,money.amount,pop.population,pop.thousend)
-    datechange()
-    clock.tick(fps)
-    pygame.display.update()
